@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Map with Selectable Countries</title>
+    <script src="https://unpkg.com/d3@5.6.0/dist/d3.min.js"></script>
+    <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+        {
+            box-sizing: border-box;
+        }
+        .col-sm-4 {
+            float: left;
+            width: 33.33%;
+            padding: 10px;
+        }
+        .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        @media screen and (max-width: 500px) {
+            .col-sm-4 {
+                width: 100%;
+            }
+        }
+        body {
+            font: 10px sans-serif;
+        }
+        .axis path,.axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+        .bar {
+            fill: #002278;
+        }
+        .bar:hover {
+            fill: #0D00C4 ;
+        }
+        .x.axis path {
+            display: none;
+        }
+        .d3-tip {
+            line-height: 1;
+            font-weight: bold;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 2px;
+        }
+        .d3-tip:after {
+            box-sizing: border-box;
+            display: inline;
+            font-size: 10px;
+            width: 100%;
+            line-height: 1;
+            color: rgba(0, 0, 0, 0.8);
+            content: "\25BC";
+            position: absolute;
+            text-align: center;
+        }
+        .d3-tip.n:after {
+            margin: -1px 0 0 0;
+            top: 100%;
+            left: 0;
+        }        
+    </style>
+  </head>
+  <body>
+      
+      
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <a class="navbar-brand" href="index.html">Home</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+                <li class="nav-item"> <a class="nav-link" href="barchart.html">Bar</a> </li>
+                <li class="nav-item"> <a class="nav-link" href="piechart.html">Pie-Bar</a> </li>
+                <li class="nav-item"> <a class="nav-link" href="worldmap.html">Globe</a> </li>
+                <li class="nav-item"> <a class="nav-link" href="chroplethchart.html">choropleth</a> </li>
+            </ul>
+        </div>
+    </nav>
+      <h1>Growth in Number of Internet User Per year in India</h1>
+
+      <script src="http://d3js.org/d3.v3.min.js"></script>
+      <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+
+    var margin = {top: 40, right: 20, bottom: 30, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var formatPercent = d3.format(".0%");
+
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .tickFormat(formatPercent);
+
+    var tip = d3.tip()
+      .attr('class', 'd3-tip')
+      .offset([-10, 0])
+      .html(function(d) {
+        return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
+      })
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.call(tip);
+
+    d3.csv("alldata.csv", type, function(error, data) {
+      x.domain(data.map(function(d) { return d.letter; }));
+      y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Frequency");
+
+      svg.selectAll(".bar")
+          .data(data)
+          .enter()
+          .append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.letter); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.frequency); })
+          .attr("height", function(d) { return height - y(d.frequency); })
+          .on('mouseover', tip.show)
+          .on('mouseout', tip.hide)
+
+    });
+
+    function type(d) {
+      d.frequency = +d.frequency;
+      return d;
+    }
+      </script>
+  </body>
+</html>
